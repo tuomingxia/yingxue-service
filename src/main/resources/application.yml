@@ -1,0 +1,14 @@
+server:
+  port: 9696
+  servlet:
+    context-path: /yingx
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/yingxue?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 12345
+mybatis:
+  type-aliases-package: com.baizzhi.entity
+  mapper-locations: classpath:com/baizzhi/mapper/*.xml
+
