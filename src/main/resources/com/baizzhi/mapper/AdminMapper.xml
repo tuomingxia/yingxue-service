@@ -6,5 +6,4 @@
     select id, username, password, create_time createTime, update_time updateTime,  delete_time deleteTime
     from yx_admin where username=#{username} and delete_time is null
 </select>
-
 </mapper>
