@@ -1,18 +1,14 @@
- package com.baizzhi.util;
+ package com.baizzhi.uitl;
 
  import org.apache.commons.io.output.ByteArrayOutputStream;
- import org.springframework.util.Base64Utils;
 
  import javax.imageio.ImageIO;
  import java.awt.*;
  import java.awt.image.BufferedImage;
- import java.io.File;
- import java.io.FileOutputStream;
  import java.io.IOException;
  import java.util.Arrays;
  import java.util.Base64;
  import java.util.Random;
- import java.util.Base64;
  import java.util.Base64.Encoder;
  public class ImageCodeUtil {
      /**

@@ -1,4 +1,4 @@
-package com.baizzhi.util;
+package com.baizzhi.uitl;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.springframework.util.Base64Utils;

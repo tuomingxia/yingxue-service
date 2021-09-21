@@ -1,4 +1,4 @@
-package com.baizzhi.util;
+package com.baizzhi.uitl;
 
 import java.util.UUID;
 
