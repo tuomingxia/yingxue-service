@@ -1,9 +1,13 @@
 package com.baizzhi.service.impl;
 
+import com.baizzhi.dao.AdminDAO;
+import com.baizzhi.dto.AdminDTO;
 import com.baizzhi.entity.Admin;
 import com.baizzhi.service.AdminService;
 import com.baizzhi.uitl.ImageCodeUtil;
+import com.baizzhi.uitl.UUIDUtil;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +23,8 @@ import java.util.concurrent.TimeUnit;
 public class AdminServiceImpl implements AdminService {
     @Resource
     StringRedisTemplate stringRedisTemplate;
-
+    @Resource
+    AdminDAO adminDAO;
 
     @Override
     public HashMap<String,Object> getImageCode() {
@@ -46,6 +51,74 @@ public class AdminServiceImpl implements AdminService {
         }catch (IOException e){
             e.printStackTrace();
         }
+        return map;
+    }
+
+
+    @Override
+    public HashMap<String, Object> login(AdminDTO adminDTO) {
+        //获取redis中String类型操作
+        ValueOperations<String,String>stringOption =stringRedisTemplate.opsForValue();
+        //1.获取验证码
+        String codeId=stringOption.get(adminDTO.getCodeId());
+
+        HashMap<String,Object>map=new HashMap<>();
+        //2.验证码是否过期
+        if(codeId!=null) {
+            //3.验证验证码
+            if(codeId.equals(adminDTO.getEnCode())){
+                //通过 根据用户查询用户  判断用户是否存在
+                Admin admin=adminDAO.queryByUserName(adminDTO.getUsername());
+                if(admin!=null) {
+                    //存在 判断密码是否准确
+                    if(admin.getPassword().equals(adminDTO.getPassword())){
+                        //存储用户信息  redis key=UUID,value=用户id
+                        String adminUUID=UUIDUtil.getUUID();
+                        //存储用户标记
+                        stringOption.set(adminUUID,admin.getId().toString(),1,TimeUnit.DAYS);
+
+                        map.put("status",200);
+                        map.put("message",adminUUID);
+                    }else {
+                        //准确  返回信息
+                        //不正确  返回信息
+                        map.put("status",401);
+                        map.put("message","密码错误");
+                    }
+                }else {
+                    //不存在 返回信息
+                    map.put("status",401);
+                    map.put("message","该用户不存在");
+                }
+            }else{
+                //不通过返回提示
+                map.put("status",401);
+                map.put("message","验证码不正确");
+            }
+        }else {
+            map.put("status",401);
+            map.put("message","验证码已过期,请最新获取!!!");
+        }
+        return map;
+    }
+
+    @Override
+    public Admin queryToken(String token) {
+        //1.用户获取id
+        String adminIds=stringRedisTemplate.opsForValue().get(token);
+        //将id转为Integer类型
+        Integer adminId=Integer.valueOf(adminIds);
+        //2.根据id查询用户信息
+        Admin admin=adminDAO.queryById((Integer) adminId);
+        return admin;
+    }
+
+    @Override
+    public HashMap<String, Object> logout(String token) {
+        //1.获取用户id
+        stringRedisTemplate.delete(token);
+        HashMap<String,Object> map=new HashMap<>();
+        map.put("message","删除成功");
         return map;
     }
 }
